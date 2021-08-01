@@ -1,0 +1,2 @@
+class MovieWatchlist < ApplicationRecord
+end
