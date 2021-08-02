@@ -13,7 +13,7 @@ class Movie < ApplicationRecord
 
     def self.update_imdbID
         self.all.each do |movie|
-            id = movie.imdbID.gsub("/title/", "").gsub("/?ref_=ttls_li_i", "")
+            id = movie.imdbID.gsub("/title/", "").gsub("/?ref_=adv_li_tt", "")
             movie.update(imdbID: id)
         end
     end
