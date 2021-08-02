@@ -3,39 +3,45 @@ class ReviewsController < ApplicationController
 
   # GET /reviews
   def index
-    @reviews = Review.all
+    reviews = Review.all
 
-    render json: @reviews
+    render json: ReviewSerializer.new(reviews)
   end
 
   # GET /reviews/1
   def show
-    render json: @review
+    render json: ReviewSerializer.new(@review)
   end
 
   # POST /reviews
   def create
-    @review = Review.new(review_params)
+    review = Review.new(review_params)
 
-    if @review.save
-      render json: @review, status: :created, location: @review
+    if review.save
+      render json: ReviewSerializer.new(review)
     else
-      render json: @review.errors, status: :unprocessable_entity
+      errors = review.errors.map {|message| message.message}.join(", ")
+      render json: {errors: "#{errors}"}, status: :unprocessable_entity       
     end
   end
 
   # PATCH/PUT /reviews/1
   def update
     if @review.update(review_params)
-      render json: @review
+      render json: ReviewSerializer.new(@review)
     else
-      render json: @review.errors, status: :unprocessable_entity
+      errors = @review.errors.map {|message| message.message}.join(", ")
+      render json: {errors: "#{errors}"}, status: :unprocessable_entity       
     end
   end
 
   # DELETE /reviews/1
   def destroy
-    @review.destroy
+    if @review.destroy
+      render json: {status: :ok}
+    else
+      render json: {errors: "There was an issue deleting your review. Please try again."}      
+    end    
   end
 
   private

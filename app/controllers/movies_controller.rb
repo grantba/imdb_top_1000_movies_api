@@ -31,7 +31,8 @@ class MoviesController < ApplicationController
       render json: MovieSerializer.new(@movie)
     else
       errors = @movie.errors.map {|message| message.message}.join(", ")
-      render json: {errors: "#{errors}"}, status: :unprocessable_entity    end
+      render json: {errors: "#{errors}"}, status: :unprocessable_entity    
+    end
   end
 
   # DELETE /movies/1
