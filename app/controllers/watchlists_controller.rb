@@ -3,39 +3,45 @@ class WatchlistsController < ApplicationController
 
   # GET /watchlists
   def index
-    @watchlists = Watchlist.all
+    watchlists = Watchlist.all
 
-    render json: @watchlists
+    render json: WatchlistSerializer.new(watchlists)
   end
 
   # GET /watchlists/1
   def show
-    render json: @watchlist
+    render json: WatchlistSerializer.new(@watchlist)
   end
 
   # POST /watchlists
   def create
-    @watchlist = Watchlist.new(watchlist_params)
+    watchlist = Watchlist.new(watchlist_params)
 
-    if @watchlist.save
-      render json: @watchlist, status: :created, location: @watchlist
+    if watchlist.save
+      render json: WatchlistSerializer.new(watchlist)
     else
-      render json: @watchlist.errors, status: :unprocessable_entity
+      errors = watchlist.errors.map {|message| message.message}.join(", ")
+      render json: {errors: "#{errors}"}, status: :unprocessable_entity       
     end
   end
 
   # PATCH/PUT /watchlists/1
   def update
     if @watchlist.update(watchlist_params)
-      render json: @watchlist
+      render json: WatchlistSerializer.new(watchlist)
     else
-      render json: @watchlist.errors, status: :unprocessable_entity
+      errors = @watchlist.errors.map {|message| message.message}.join(", ")
+      render json: {errors: "#{errors}"}, status: :unprocessable_entity       
     end
   end
 
   # DELETE /watchlists/1
   def destroy
-    @watchlist.destroy
+    if @watchlist.destroy
+      render json: {status: :ok}
+    else
+      render json: {errors: "There was an issue deleting your watchlist. Please try again."}           
+    end    
   end
 
   private
@@ -49,3 +55,4 @@ class WatchlistsController < ApplicationController
       params.require(:watchlist).permit(:category_type)
     end
 end
+
