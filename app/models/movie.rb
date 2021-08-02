@@ -3,4 +3,35 @@ class Movie < ApplicationRecord
     has_and_belongs_to_many :watchlists, through: :movie_watchlists
     # has_many :users, through: :watchlists
     has_many :reviews
+
+    def self.search(movie)
+        if movie["Response"] == "False"
+            "That movie could not be found. Please try again."
+        else
+            new_movie = Movie.new(Title: movie["Title"], Year: movie["Year"], Rated: movie["Rated"], Released: movie["Released"], Runtime: movie["Runtime"], Genre: movie["Genre"], Director: movie["Director"], Writer: movie["Writer"], Actors: movie["Actors"], Plot: movie["Plot"], Awards: movie["Awards"], Poster: movie["Poster"], Ratings: movie["Ratings"], imdbRating: movie["imdbRating"], imdbID: movie["imdbID"], BoxOffice: movie["BoxOffice"], Production: movie["Production"], Response: movie["Response"])
+            # if one of the movies from scraping the imdb's website for Disney movies and in the db
+            if movie = Movie.find_by(Title: new_movie.Title, imdbID: new_movie.imdbID)
+                if movie.update(Rated: new_movie["Rated"], Released: new_movie["Released"], Runtime: new_movie["Runtime"], Genre: new_movie["Genre"], Director: new_movie["Director"], Writer: new_movie["Writer"], Actors: new_movie["Actors"], Plot: new_movie["Plot"], Awards: new_movie["Awards"], Poster: new_movie["Poster"], Ratings: new_movie["Ratings"], imdbRating: new_movie["imdbRating"], BoxOffice: new_movie["BoxOffice"], Production: new_movie["Production"], Response: new_movie["Response"])
+                    rating = movie.imdbRating.gsub(".", "").to_i
+                    box_office = movie.BoxOffice.gsub("$", "").gsub(",", "").to_i
+                    movie.update(imdbRating: rating, BoxOffice: box_office)                    
+                    movie
+                else
+                    "There was an issue loading this movie. Please try again."
+                end
+            else
+                # if one of the movies from name search and not already in the db
+                if new_movie.save
+                    movie_year = "(" + new_movie.Year + ")" 
+                    rating = new_movie.imdbRating.gsub(".", "").to_i
+                    box_office = new_movie.BoxOffice.gsub("$", "").gsub(",", "").to_i
+                    new_movie.update(Year: movie_year, imdbRating: rating, BoxOffice: box_office) 
+                    new_movie
+                else
+                    "There was an issue loading this movie. Please try again."
+                end
+            end
+        end
+    end 
+    
 end
