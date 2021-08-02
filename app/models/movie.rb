@@ -4,6 +4,20 @@ class Movie < ApplicationRecord
     # has_many :users, through: :watchlists
     has_many :reviews
 
+    def self.make_a_movie(movies_array)
+        movies_array.each do |movie|
+          Movie.create(movie)
+        end
+        update_imdbID
+    end
+
+    def self.update_imdbID
+        self.all.each do |movie|
+            id = movie.imdbID.gsub("/title/", "").gsub("/?ref_=ttls_li_i", "")
+            movie.update(imdbID: id)
+        end
+    end
+
     def self.search(movie)
         if movie["Response"] == "False"
             "That movie could not be found. Please try again."
@@ -33,5 +47,5 @@ class Movie < ApplicationRecord
             end
         end
     end 
-    
+
 end
